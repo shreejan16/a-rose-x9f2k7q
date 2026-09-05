@@ -320,12 +320,6 @@
 </style>
 </head>
 <body>
-<div id="lockScreen" style="position:fixed;inset:0;z-index:9999;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;font-family:'Klee One', cursive;">
-  <p style="color:var(--paper-light);font-size:1.1rem;margin:0;">a little something is waiting</p>
-  <input id="lockInput" type="password" placeholder="passcode" style="padding:0.7rem 1rem;border-radius:8px;border:none;font-size:1rem;text-align:center;width:180px;">
-  <button id="lockBtn" style="padding:0.6rem 1.4rem;border-radius:999px;border:none;background:var(--vermillion);color:var(--paper-light);font-family:'Klee One', cursive;cursor:pointer;">unlock</button>
-  <p id="lockError" style="color:var(--vermillion);opacity:0;font-size:0.85rem;margin:0;">wrong passcode, try again</p>
-</div>
 <div class="petals" id="petals"></div>
 
 <div class="stage">
@@ -466,23 +460,6 @@
   overlay.addEventListener('click', (e) => { if (e.target === overlay) closeLetter(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLetter(); });
 </script>
-<script>
-  (function(){
-    const PASSCODE = "54321";
-    const lock = document.getElementById('lockScreen');
-    const input = document.getElementById('lockInput');
-    const btn = document.getElementById('lockBtn');
-    const err = document.getElementById('lockError');
-    function tryUnlock(){
-      if (input.value === PASSCODE){
-        lock.style.display = 'none';
-      } else {
-        err.style.opacity = '1';
-      }
-    }
-    btn.addEventListener('click', tryUnlock);
-    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryUnlock(); });
-  })();
-</script>
+
 </body>
 </html>
