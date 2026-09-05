@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>A Rose For You</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Klee+One:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#1c1a17;
+    --paper:#e3d8bd;
+    --paper-light:#efe7d2;
+    --indigo:#2c3c57;
+    --indigo-deep:#1a2636;
+    --vermillion:#a3402b;
+    --gold:#b3903f;
+    --rose-wash:#c48b83;
+    --rose-wash-deep:#8f4a42;
+    --sakura:#e4b9b0;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html, body{
+    height:100%;
+    margin:0;
+    overflow:hidden;
+    background:var(--paper);
+    font-family:'Shippori Mincho', serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  ::selection{ background:var(--rose-wash); color:var(--paper-light); }
+
+  .stage{
+    position:relative;
+    height:100dvh;
+    width:100%;
+    display:grid;
+    grid-template-rows:auto 1fr auto;
+    padding: clamp(0.8rem, 2.5vh, 1.6rem) clamp(1rem, 4vw, 2.5rem);
+  }
+
+  /* ---------- ambient floating petals ---------- */
+  .petals{
+    position:fixed; inset:0;
+    pointer-events:none;
+    z-index:1;
+    overflow:hidden;
+  }
+  .petal{
+    position:absolute;
+    top:-8%;
+    width:16px; height:16px;
+    opacity:0.55;
+    animation: fall linear infinite;
+  }
+  .petal svg{ width:100%; height:100%; display:block; }
+  @keyframes fall{
+    0%{ transform: translate(0,0) rotate(0deg); }
+    50%{ transform: translate(24px,50vh) rotate(180deg); }
+    100%{ transform: translate(-10px,108vh) rotate(340deg); }
+  }
+
+  /* ---------- header ---------- */
+  header{
+    position:relative; z-index:2;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:1rem;
+  }
+  .kicker{
+    font-family:'Klee One', cursive;
+    font-size:clamp(0.72rem, 1.6vh, 0.95rem);
+    color:var(--vermillion);
+    margin:0;
+  }
+  .for-name{
+    font-family:'Klee One', cursive;
+    font-size:clamp(0.9rem, 2vh, 1.15rem);
+    color:var(--ink);
+    opacity:0.75;
+    margin:0;
+    text-align:right;
+  }
+
+  /* ---------- main ---------- */
+  main{
+    position:relative; z-index:2;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    min-height:0;
+    gap: clamp(0.4rem, 1.4vh, 0.9rem);
+  }
+
+  h1{
+    font-weight:700;
+    font-size:clamp(1.5rem, 4.4vh, 2.6rem);
+    margin:0;
+    letter-spacing:0.01em;
+    text-align:center;
+  }
+
+  .rose-zone{
+    position:relative;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height: clamp(140px, 44vh, 340px);
+    width: 100%;
+  }
+
+  .rose-svg{
+    height:100%;
+    width:auto;
+    overflow:visible;
+    filter: drop-shadow(0 6px 14px rgba(28,26,23,0.12));
+    transition: transform 0.5s cubic-bezier(.3,1.6,.4,1);
+  }
+  .rose-zone.painted .rose-svg{
+    animation: bloom-wiggle 0.7s ease 0.05s;
+  }
+  @keyframes bloom-wiggle{
+    0%{ transform:scale(0.96) rotate(0deg); }
+    35%{ transform:scale(1.05) rotate(-3deg); }
+    65%{ transform:scale(0.99) rotate(2deg); }
+    100%{ transform:scale(1) rotate(0deg); }
+  }
+
+  .petal-stroke{
+    fill:none;
+    stroke:var(--ink);
+    stroke-width:2.4;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .petal-fill{
+    fill:var(--rose-wash);
+    opacity:0;
+    transition: opacity 0.9s ease 0.1s;
+  }
+  .petal-fill.deep{ fill:var(--rose-wash-deep); }
+  .rose-zone.painted .petal-fill{ opacity:0.85; }
+  .stem-stroke{
+    fill:none; stroke:#3a4a2e; stroke-width:2.6; stroke-linecap:round;
+  }
+
+  .hanko{
+    position:absolute;
+    bottom:2%;
+    right:6%;
+    width: clamp(38px, 9vh, 62px);
+    height: clamp(38px, 9vh, 62px);
+    opacity:0;
+    transform: scale(2.2) rotate(-20deg);
+    transition: opacity 0.35s ease, transform 0.35s cubic-bezier(.2,1.8,.35,1);
+  }
+  .rose-zone.painted .hanko{
+    opacity:0.95;
+    transform: scale(1) rotate(-8deg);
+    transition-delay:0.55s;
+  }
+
+  .brush-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:0.6rem;
+    background:var(--ink);
+    color:var(--paper-light);
+    border:none;
+    font-family:'Klee One', cursive;
+    font-size:clamp(0.85rem, 1.9vh, 1.05rem);
+    padding: clamp(0.55rem,1.6vh,0.85rem) clamp(1.1rem,2.6vw,1.6rem);
+    border-radius:999px;
+    cursor:pointer;
+    transition: transform 0.25s cubic-bezier(.3,1.8,.4,1), background 0.25s ease;
+    animation: nudge 2.6s ease-in-out infinite;
+  }
+  .brush-btn:hover{ transform:scale(1.06) rotate(-1.5deg); background:var(--vermillion); }
+  .brush-btn:active{ transform:scale(0.94); }
+  .brush-btn:focus-visible{ outline:2px solid var(--vermillion); outline-offset:3px; }
+  .brush-btn.hidden{ display:none; }
+  @keyframes nudge{
+    0%,100%{ transform:translateY(0) rotate(0deg); }
+    50%{ transform:translateY(-3px) rotate(-1deg); }
+  }
+
+  .reopen-btn{
+    display:none;
+    align-items:center;
+    gap:0.5rem;
+    background:none;
+    border:1px dashed var(--vermillion);
+    color:var(--vermillion);
+    font-family:'Klee One', cursive;
+    font-size:clamp(0.75rem, 1.6vh, 0.9rem);
+    padding: clamp(0.4rem,1.2vh,0.6rem) clamp(0.9rem,2vw,1.2rem);
+    border-radius:999px;
+    cursor:pointer;
+  }
+  .reopen-btn.show{ display:inline-flex; }
+  .reopen-btn:hover{ background:rgba(163,64,43,0.08); }
+
+  .rose-caption{
+    font-family:'Klee One', cursive;
+    font-size:clamp(0.72rem, 1.5vh, 0.88rem);
+    opacity:0.55;
+    margin:0;
+  }
+
+  /* ---------- footer ---------- */
+  footer{
+    position:relative; z-index:2;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:1rem;
+  }
+  .hanakotoba{
+    max-width:36ch;
+    font-size:clamp(0.68rem, 1.4vh, 0.82rem);
+    line-height:1.5;
+    opacity:0.6;
+    margin:0;
+  }
+  .hanakotoba span{ color:var(--vermillion); }
+  .sig{
+    font-family:'Klee One', cursive;
+    font-size:clamp(0.8rem, 1.7vh, 1rem);
+    color:var(--vermillion);
+    white-space:nowrap;
+  }
+
+  /* ---------- letter overlay ---------- */
+  .overlay{
+    position:fixed; inset:0;
+    z-index:10;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 4vh 5vw;
+    background: rgba(26,20,15,0.42);
+    backdrop-filter: blur(2px);
+    opacity:0;
+    pointer-events:none;
+    transition: opacity 0.35s ease;
+  }
+  .overlay.open{ opacity:1; pointer-events:auto; }
+
+  .letter{
+    position:relative;
+    max-width:52ch;
+    width:100%;
+    max-height:88dvh;
+    overflow:auto;
+    background:var(--paper-light);
+    border-left:3px solid var(--vermillion);
+    border-radius:2px;
+    padding: clamp(1.4rem,4vh,2.4rem) clamp(1.4rem,4vw,2.4rem);
+    box-shadow: 0 20px 50px rgba(20,15,10,0.35);
+    transform: scale(0.7) rotate(-6deg);
+    opacity:0;
+    transition: transform 0.5s cubic-bezier(.2,1.7,.35,1), opacity 0.35s ease;
+  }
+  .overlay.open .letter{
+    transform: scale(1) rotate(0deg);
+    opacity:1;
+  }
+
+  .letter-close{
+    position:absolute;
+    top:0.6rem; right:0.6rem;
+    width:32px; height:32px;
+    border-radius:50%;
+    border:none;
+    background:transparent;
+    color:var(--ink);
+    font-size:1.2rem;
+    line-height:1;
+    cursor:pointer;
+    opacity:0.55;
+  }
+  .letter-close:hover{ opacity:1; }
+
+  .letter p{
+    font-family:'Klee One', cursive;
+    font-size:clamp(0.98rem, 2.2vh, 1.15rem);
+    line-height:1.85;
+    margin:0 0 1.1rem 0;
+  }
+  .letter-signature{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:0.7rem;
+    margin-top:1.2rem;
+  }
+  .letter-signature-name{
+    font-family:'Klee One', cursive;
+    font-size:1.1rem;
+    color:var(--vermillion);
+  }
+  .letter-stamp{ width:34px; height:34px; flex-shrink:0; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition-duration:0.01ms !important; }
+  }
+
+  @media (max-height: 480px){
+    .rose-zone{ height: clamp(110px, 38vh, 260px); }
+    h1{ font-size:clamp(1.2rem, 4vh, 1.8rem); }
+  }
+</style>
+</head>
+<body>
+<div id="lockScreen" style="position:fixed;inset:0;z-index:9999;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;font-family:'Klee One', cursive;">
+  <p style="color:var(--paper-light);font-size:1.1rem;margin:0;">a little something is waiting</p>
+  <input id="lockInput" type="password" placeholder="passcode" style="padding:0.7rem 1rem;border-radius:8px;border:none;font-size:1rem;text-align:center;width:180px;">
+  <button id="lockBtn" style="padding:0.6rem 1.4rem;border-radius:999px;border:none;background:var(--vermillion);color:var(--paper-light);font-family:'Klee One', cursive;cursor:pointer;">unlock</button>
+  <p id="lockError" style="color:var(--vermillion);opacity:0;font-size:0.85rem;margin:0;">wrong passcode, try again</p>
+</div>
+<div class="petals" id="petals"></div>
+
+<div class="stage">
+  <header>
+    <p class="kicker">For my sanu maya !!</p>
+    <p class="for-name">for Bebu</p>
+  </header>
+
+  <main>
+    <h1>!! तिम्रो लागि !!</h1>
+
+    <div class="rose-zone" id="roseZone">
+      <svg class="rose-svg" viewBox="0 0 400 460" xmlns="http://www.w3.org/2000/svg">
+        <path class="stem-stroke" id="stem" d="M 205 260 C 200 320, 195 370, 198 430" />
+        <path class="stem-stroke" id="leaf1" d="M 200 320 C 165 315, 140 335, 128 360 C 158 358, 185 348, 200 322" />
+        <path class="stem-stroke" id="leaf2" d="M 202 355 C 232 352, 255 372, 265 398 C 238 394, 212 384, 200 358" />
+
+        <path class="petal-fill deep" d="M 200 90 C 175 95, 160 120, 165 150 C 170 180, 195 195, 210 190 C 230 183, 240 155, 232 128 C 226 106, 214 92, 200 90 Z"/>
+        <path class="petal-fill" d="M 150 120 C 120 130, 108 165, 125 195 C 142 222, 175 225, 190 205 C 202 188, 195 155, 175 135 C 168 128, 158 122, 150 120 Z"/>
+        <path class="petal-fill" d="M 250 120 C 280 130, 292 165, 275 195 C 258 222, 225 225, 210 205 C 198 188, 205 155, 225 135 C 232 128, 242 122, 250 120 Z"/>
+        <path class="petal-fill deep" d="M 130 180 C 105 200, 100 235, 122 258 C 144 280, 178 275, 190 250 C 200 230, 188 200, 165 185 C 154 178, 140 176, 130 180 Z"/>
+        <path class="petal-fill deep" d="M 270 180 C 295 200, 300 235, 278 258 C 256 280, 222 275, 210 250 C 200 230, 212 200, 235 185 C 246 178, 260 176, 270 180 Z"/>
+        <path class="petal-fill" d="M 165 230 C 150 258, 160 292, 190 305 C 220 318, 250 300, 252 270 C 254 248, 232 225, 205 222 C 190 220, 174 222, 165 230 Z"/>
+        <path class="petal-fill" d="M 235 230 C 250 258, 240 292, 210 305 C 205 306, 200 306, 196 305 C 190 285, 190 250, 205 225 C 215 220, 228 222, 235 230 Z"/>
+
+        <path class="petal-stroke" data-p="1" d="M 200 90 C 175 95, 160 120, 165 150 C 170 180, 195 195, 210 190 C 230 183, 240 155, 232 128 C 226 106, 214 92, 200 90 Z"/>
+        <path class="petal-stroke" data-p="2" d="M 150 120 C 120 130, 108 165, 125 195 C 142 222, 175 225, 190 205 C 202 188, 195 155, 175 135 C 168 128, 158 122, 150 120 Z"/>
+        <path class="petal-stroke" data-p="3" d="M 250 120 C 280 130, 292 165, 275 195 C 258 222, 225 225, 210 205 C 198 188, 205 155, 225 135 C 232 128, 242 122, 250 120 Z"/>
+        <path class="petal-stroke" data-p="4" d="M 130 180 C 105 200, 100 235, 122 258 C 144 280, 178 275, 190 250 C 200 230, 188 200, 165 185 C 154 178, 140 176, 130 180 Z"/>
+        <path class="petal-stroke" data-p="5" d="M 270 180 C 295 200, 300 235, 278 258 C 256 280, 222 275, 210 250 C 200 230, 212 200, 235 185 C 246 178, 260 176, 270 180 Z"/>
+        <path class="petal-stroke" data-p="6" d="M 165 230 C 150 258, 160 292, 190 305 C 220 318, 250 300, 252 270 C 254 248, 232 225, 205 222 C 190 220, 174 222, 165 230 Z"/>
+        <path class="petal-stroke" data-p="7" d="M 235 230 C 250 258, 240 292, 210 305 C 205 306, 200 306, 196 305 C 190 285, 190 250, 205 225 C 215 220, 228 222, 235 230 Z"/>
+        <path class="petal-stroke" data-p="8" d="M 200 150 C 188 155, 182 168, 188 180 C 194 192, 208 192, 214 180 C 220 168, 212 155, 200 150 Z"/>
+      </svg>
+
+      <svg class="hanko" id="hanko" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="6" width="88" height="88" rx="6" fill="var(--vermillion)"/>
+        <rect x="14" y="14" width="72" height="72" rx="3" fill="none" stroke="var(--paper-light)" stroke-width="2.5"/>
+        <text x="50" y="60" text-anchor="middle" font-family="'Shippori Mincho', serif" font-size="34" fill="var(--paper-light)">SY</text>
+      </svg>
+    </div>
+
+    <button class="brush-btn" id="paintBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20 L14 10 M14 10 C16 6, 19 5, 20 4 C20 6, 18 9, 15 11 L14 10 Z"/></svg>
+    Thicha Malai
+    </button>
+    <button class="reopen-btn" id="reopenBtn">read the letter again</button>
+    <p class="rose-caption">it only blooms once you ask it to</p>
+  </main>
+
+  <footer>
+    <p class="hanakotoba">A rose for you to say <span>"I love you"</span> — plainly, without needing anything else added to it.</p>
+    <p class="sig">— Shreeju</p>
+  </footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="letter">
+    <button class="letter-close" id="letterClose" aria-label="close letter">×</button>
+    <p> Dear bebu , I know how lucky I am to have such a wonderful loving person in my life. I miss you and love you so much. I know one day we will be together and enjoy all the time. I hope and pray for the best things to happen. I just want to tell you through this letter that you are such a kind and pure soul. I just do not have enough words to describe how pure your love feels to me. Sorry some times I become clumsy, trust me its just me and my schedume tiring me. But deep inside I love you so so much. </p>
+    <p>May you desire good things in life and may your desires fulfill</p>
+    <div class="letter-signature">
+      <span class="letter-signature-name">— Tmro Shreeju </span>
+      <svg class="letter-stamp" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="6" width="88" height="88" rx="6" fill="var(--vermillion)"/>
+        <text x="50" y="62" text-anchor="middle" font-family="'Shippori Mincho', serif" font-size="34" fill="var(--paper-light)">SY</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- ambient falling petals ----
+  const petalLayer = document.getElementById('petals');
+  const PETAL_COUNT = 9;
+  const petalShape = (color) => `
+    <svg viewBox="0 0 20 20"><path d="M10 1 C15 3, 18 8, 10 19 C2 8, 5 3, 10 1 Z" fill="${color}"/></svg>`;
+  const petalColors = ['var(--sakura)','var(--rose-wash)','var(--sakura)'];
+  for (let i=0;i<PETAL_COUNT;i++){
+    const el = document.createElement('div');
+    el.className = 'petal';
+    el.style.left = (Math.random()*96)+'%';
+    el.style.width = el.style.height = (10+Math.random()*10)+'px';
+    el.style.animationDuration = (10+Math.random()*10)+'s';
+    el.style.animationDelay = (Math.random()*-18)+'s';
+    el.innerHTML = petalShape(petalColors[i % petalColors.length]);
+    petalLayer.appendChild(el);
+  }
+
+  // ---- prep rose strokes for draw-on ----
+  const strokes = Array.from(document.querySelectorAll('.petal-stroke'));
+  strokes.forEach(s => {
+    const len = s.getTotalLength();
+    s.style.strokeDasharray = len;
+    s.style.strokeDashoffset = len;
+  });
+  const stem = document.getElementById('stem');
+  const leaf1 = document.getElementById('leaf1');
+  const leaf2 = document.getElementById('leaf2');
+  [stem, leaf1, leaf2].forEach(s=>{
+    const len = s.getTotalLength();
+    s.style.strokeDasharray = len;
+    s.style.strokeDashoffset = len;
+  });
+
+  let painted = false;
+  const btn = document.getElementById('paintBtn');
+  const reopenBtn = document.getElementById('reopenBtn');
+  const zone = document.getElementById('roseZone');
+  const overlay = document.getElementById('overlay');
+  const letterClose = document.getElementById('letterClose');
+
+  function openLetter(){ overlay.classList.add('open'); }
+  function closeLetter(){ overlay.classList.remove('open'); }
+
+  btn.addEventListener('click', () => {
+    if (painted) return;
+    painted = true;
+
+    [stem, leaf1, leaf2].forEach((s,i)=>{
+      s.style.transition = `stroke-dashoffset 0.7s ease ${i*0.12}s`;
+      requestAnimationFrame(()=>{ s.style.strokeDashoffset = 0; });
+    });
+    strokes.forEach((s,i)=>{
+      s.style.transition = `stroke-dashoffset 0.55s ease ${0.35 + i*0.13}s`;
+      requestAnimationFrame(()=>{ s.style.strokeDashoffset = 0; });
+    });
+
+    setTimeout(()=>{ zone.classList.add('painted'); }, 1350);
+    setTimeout(()=>{ openLetter(); }, 2200);
+
+    btn.classList.add('hidden');
+    setTimeout(()=>{ reopenBtn.classList.add('show'); }, 2200);
+  });
+
+  reopenBtn.addEventListener('click', openLetter);
+  letterClose.addEventListener('click', closeLetter);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeLetter(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLetter(); });
+</script>
+<script>
+  (function(){
+    const PASSCODE = "54321";
+    const lock = document.getElementById('lockScreen');
+    const input = document.getElementById('lockInput');
+    const btn = document.getElementById('lockBtn');
+    const err = document.getElementById('lockError');
+    function tryUnlock(){
+      if (input.value === PASSCODE){
+        lock.style.display = 'none';
+      } else {
+        err.style.opacity = '1';
+      }
+    }
+    btn.addEventListener('click', tryUnlock);
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryUnlock(); });
+  })();
+</script>
+</body>
+</html>
